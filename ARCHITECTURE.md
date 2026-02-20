@@ -1,4 +1,4 @@
-# Architecture Documentation - AI Speaking POC
+# Architecture Documentation - DEMO POC
 
 ## System Overview
 
@@ -380,38 +380,6 @@ Threshold Check: ≥80% = correct
 
 ---
 
-## Failure Handling
-
-### Service Failures
-
-**Auth Service Down:**
-- Can't login ❌
-- Can't access protected endpoints ❌
-- Existing tokens still valid ✅
-
-**User Service Down:**
-- Can't register ❌
-- Can't login ❌
-- AI Service still works for existing users ✅
-
-**AI Service Down:**
-- Can't generate sentences ❌
-- Can't submit audio ❌
-- Auth and User services unaffected ✅
-
-### API Failures
-
-**OpenAI API Down:**
-- Sentence generation uses fallback sentences ✅
-- System remains functional ✅
-
-**Whisper API Fails:**
-- Returns error to user ❌
-- Doesn't crash service ✅
-- User can retry with same or new audio file ✅
-
----
-
 ## Database Schema
 
 ### Auth Database
@@ -469,12 +437,12 @@ docker-compose up --build
 ## Conclusion
 
 This architecture provides:
-- ✅ Simple, focused design
-- ✅ Independent service deployment
-- ✅ Clear service boundaries
-- ✅ Scalable foundation
-- ✅ Production-ready patterns
-- ✅ AI/ML integration
-- ✅ Clean codebase
+-  Simple, focused design
+-  Independent service deployment
+-  Clear service boundaries
+-  Scalable foundation
+-  Production-ready patterns
+-  AI/ML integration
+-  Clean codebase
 
 The POC successfully demonstrates microservices architecture with AI-powered language learning.

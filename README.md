@@ -2,7 +2,7 @@
 
 A microservices based language learning platform with AI-powered speech recognition and pronunciation feedback.
 
-## 🏗️ Architecture
+## Architecture
 
 This project demonstrates a **true microservices architecture** with:
 
@@ -16,7 +16,7 @@ This project demonstrates a **true microservices architecture** with:
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architecture documentation.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Docker & Docker Compose
@@ -63,7 +63,7 @@ Frontend runs on: http://localhost:8080
 
 Open http://localhost:8080 in your browser.
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 demoPoc/
@@ -87,7 +87,7 @@ demoPoc/
 └── README.md
 ```
 
-## 🔧 Services
+## Services
 
 ### Auth Service (Port 8001)
 - User authentication
@@ -120,7 +120,7 @@ demoPoc/
 - `POST /ai/chat` - Chat with AI
 - `GET /ai/history` - Get practice history
 
-## 🐳 Docker Commands
+## Docker Commands
 
 **Start all services:**
 ```bash
@@ -154,7 +154,7 @@ docker-compose up -d
 ```
 
 
-## 🚢 Deployment
+## Deployment
 
 ### Local Development
 ```bash
@@ -164,10 +164,10 @@ docker-compose up -d
 ### Production Deployment Options
 
 #### Option 1: Render (Recommended - Easiest)
-- ✅ Free tier available
-- ✅ Deploy directly from GitHub
-- ✅ Automatic HTTPS
-- ✅ Free PostgreSQL (90 days)
+- Free tier available
+- Deploy directly from GitHub
+- Automatic HTTPS
+- Free PostgreSQL (90 days)
 
 **Quick Deploy:**
 1. Push code to GitHub
@@ -176,9 +176,9 @@ docker-compose up -d
 4. Add environment variables
 
 #### Option 2: Google Cloud Run
-- ✅ Free tier available
-- ✅ Serverless, auto-scaling
-- ✅ Pay per use
+- Free tier available
+- Serverless, auto-scaling
+- Pay per use
 - Use Cloud SQL for databases
 
 **Deploy Command:**
@@ -187,9 +187,9 @@ gcloud run deploy SERVICE_NAME --source . --region us-central1
 ```
 
 #### Option 3: Railway
-- ✅ Free tier available
-- ✅ Easy deployment
-- ✅ Free PostgreSQL
+- Free tier available
+- Easy deployment
+- Free PostgreSQL
 
 ### Production Best Practices
 - Use managed PostgreSQL (Cloud SQL, Supabase, Railway)
