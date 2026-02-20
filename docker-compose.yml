@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # Auth Service
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://auth_user:auth_pass@auth-db:5432/auth_db
+      - USER_SERVICE_URL=http://user-service:8000
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  auth-db:
+    image: postgres:15-alpine
+    container_name: auth-db
+    ports:
+      - "5433:5432"  # Expose to host for easy access
+    environment:
+      - POSTGRES_USER=auth_user
+      - POSTGRES_PASSWORD=auth_pass
+      - POSTGRES_DB=auth_db
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # User Service
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user_user:user_pass@user-db:5432/user_db
+      - AUTH_SERVICE_URL=http://auth-service:8001
+    depends_on:
+      user-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - microservices-network
+
+  user-db:
+    image: postgres:15-alpine
+    container_name: user-db
+    ports:
+      - "5434:5432"  # Expose to host for easy access
+    environment:
+      - POSTGRES_USER=user_user
+      - POSTGRES_PASSWORD=user_pass
+      - POSTGRES_DB=user_db
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_user -d user_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # AI Speaking Service
+  ai-service:
+    build: ./ai-service
+    container_name: ai-service
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://ai_user:ai_pass@ai-db:5432/ai_db
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      ai-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    volumes:
+      - ai-audio-files:/app/audio_files
+    networks:
+      - microservices-network
+
+  ai-db:
+    image: postgres:15-alpine
+    container_name: ai-db
+    ports:
+      - "5435:5432"  # Expose to host for easy access
+    environment:
+      - POSTGRES_USER=ai_user
+      - POSTGRES_PASSWORD=ai_pass
+      - POSTGRES_DB=ai_db
+    volumes:
+      - ai-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_user -d ai_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth-db-data:
+  user-db-data:
+  ai-db-data:
+  ai-audio-files:
+
+networks:
+  microservices-network:
+    driver: bridge
