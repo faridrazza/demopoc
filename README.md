@@ -49,7 +49,6 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architecture documentation.
 
 ### Prerequisites
 - Docker & Docker Compose
-- Node.js 18+ (for frontend)
 - OpenAI API Key
 
 ### 1. Clone and Setup
@@ -78,19 +77,19 @@ This starts:
 - AI Service (Port 8002)
 - 3 PostgreSQL databases
 
-### 4. Start Frontend
+### 4. Test the Services
 
+**Health checks:**
 ```bash
-cd frontend/ai-language-coach
-npm install
-npm run dev
+curl http://localhost:8001/health
+curl http://localhost:8000/health
+curl http://localhost:8002/health
 ```
 
-Frontend runs on: http://localhost:8080
-
-### 5. Access the Application
-
-Open http://localhost:8080 in your browser.
+**API Documentation:**
+- Auth Service: http://localhost:8001/docs
+- User Service: http://localhost:8000/docs
+- AI Service: http://localhost:8002/docs
 
 ## Project Structure
 
@@ -189,42 +188,4 @@ docker-compose up -d
 ```bash
 docker-compose up -d
 ```
-
-### Production Deployment Options
-
-#### Option 1: Render (Recommended - Easiest)
-- Free tier available
-- Deploy directly from GitHub
-- Automatic HTTPS
-- Free PostgreSQL (90 days)
-
-**Quick Deploy:**
-1. Push code to GitHub
-2. Connect repo to Render
-3. Deploy 3 services + 3 databases
-4. Add environment variables
-
-#### Option 2: Google Cloud Run
-- Free tier available
-- Serverless, auto-scaling
-- Pay per use
-- Use Cloud SQL for databases
-
-**Deploy Command:**
-```bash
-gcloud run deploy SERVICE_NAME --source . --region us-central1
-```
-
-#### Option 3: Railway
-- Free tier available
-- Easy deployment
-- Free PostgreSQL
-
-### Production Best Practices
-- Use managed PostgreSQL (Cloud SQL, Supabase, Railway)
-- Enable HTTPS/TLS (automatic on most platforms)
-- Set up monitoring and logging
-- Use environment variables for secrets
-- Configure auto-scaling
-- Regular backups
 
