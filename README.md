@@ -1,6 +1,6 @@
 # AI Language Coach - Microservices POC
 
-A microservices-based language learning platform with AI-powered speech recognition and pronunciation feedback.
+A microservices based language learning platform with AI-powered speech recognition and pronunciation feedback.
 
 ## 🏗️ Architecture
 
