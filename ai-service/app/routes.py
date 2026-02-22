@@ -192,3 +192,194 @@ async def chat_with_ai(
             "response": f"I received your message: '{request.message}'. I'm here to help you practice languages! Try asking me to generate a sentence in a specific language.",
             "message": f"I received your message: '{request.message}'. I'm here to help you practice languages!"
         }
+
+
+@router.post("/ai/create-avatar-conversation", response_model=schemas.CreateAvatarConversationResponse)
+async def create_avatar_conversation(
+    request: schemas.CreateAvatarConversationRequest,
+    token_data: dict = Depends(verify_token)
+):
+    """
+    Create a Tavus AI avatar conversation for real-time video language practice
+    
+    Flow:
+    1. User selects language and clicks "Talk to Avatar"
+    2. Backend creates Tavus conversation using pre-configured persona
+    3. Returns conversation URL (Daily.co room)
+    4. Frontend embeds the video call
+    5. User talks face-to-face with AI avatar (Luna) in real-time
+    
+    Technical Details:
+    - Uses Tavus API to create conversations
+    - Returns Daily.co WebRTC room URL (format: https://tavus.daily.co/xxxxx)
+    - Daily.co handles the actual video streaming infrastructure
+    - Tavus provides the AI avatar rendering and conversational intelligence
+    
+    Requirements:
+    - TAVUS_API_KEY in environment variables
+    - TAVUS_PERSONA_ID in environment variables (created in Tavus dashboard)
+    - TAVUS_REPLICA_ID in environment variables (Luna avatar)
+    """
+    import requests
+    
+    tavus_api_key = os.getenv("TAVUS_API_KEY")
+    tavus_persona_id = os.getenv("TAVUS_PERSONA_ID")
+    tavus_replica_id = os.getenv("TAVUS_REPLICA_ID")
+    
+    # Validate configuration
+    if not tavus_api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="Tavus AI is not configured. Please add TAVUS_API_KEY to environment variables."
+        )
+    
+    if not tavus_persona_id:
+        raise HTTPException(
+            status_code=503,
+            detail="Tavus Persona is not configured. Please add TAVUS_PERSONA_ID to environment variables."
+        )
+    
+    if not tavus_replica_id:
+        raise HTTPException(
+            status_code=503,
+            detail="Tavus Replica is not configured. Please add TAVUS_REPLICA_ID to environment variables."
+        )
+    
+    try:
+        headers = {
+            "x-api-key": tavus_api_key,
+            "Content-Type": "application/json"
+        }
+        
+        # Create conversation with pre-configured persona
+        conversation_url = "https://tavusapi.com/v2/conversations"
+        conversation_payload = {
+            "persona_id": tavus_persona_id,
+            "replica_id": tavus_replica_id,
+            "conversation_name": f"English Practice with Luna - {token_data.get('email', 'User')}",
+            "conversational_context": f"The learner wants to practice English conversation. They selected '{request.language}' as their focus area. Adapt your teaching to their level and interests.",
+            "properties": {
+                "max_call_duration": 1800,  # 30 minutes
+                "participant_left_timeout": 60,  # 1 minute after participant leaves
+                "enable_recording": False  # Privacy: don't record by default
+            }
+        }
+        
+        conversation_response = requests.post(
+            conversation_url, 
+            json=conversation_payload, 
+            headers=headers, 
+            timeout=15
+        )
+        
+        # Handle response
+        if conversation_response.status_code in [200, 201]:
+            data = conversation_response.json()
+            
+            return schemas.CreateAvatarConversationResponse(
+                conversation_id=data.get("conversation_id", ""),
+                conversation_url=data.get("conversation_url", ""),
+                status=data.get("status", "active"),
+                message=f"Connected to Luna! Video streaming powered by Daily.co. Practice {request.language} now!"
+            )
+        else:
+            # Tavus API error
+            error_detail = conversation_response.json() if conversation_response.content else {"error": "Unknown error"}
+            raise HTTPException(
+                status_code=conversation_response.status_code,
+                detail=f"Tavus API error: {error_detail}"
+            )
+    
+    except requests.exceptions.Timeout:
+        raise HTTPException(
+            status_code=504,
+            detail="Tavus API request timed out. Please try again."
+        )
+    
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Failed to connect to Tavus API: {str(e)}"
+        )
+    
+    except HTTPException:
+        raise
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to create avatar conversation: {str(e)}"
+        )
+
+
+@router.post("/ai/end-avatar-conversation")
+async def end_avatar_conversation(
+    request: schemas.EndAvatarConversationRequest,
+    token_data: dict = Depends(verify_token)
+):
+    """
+    End an active Tavus AI avatar conversation
+    
+    This endpoint properly closes the Daily.co room and ends the conversation.
+    Important for:
+    - Preventing unnecessary costs
+    - Cleaning up resources
+    - Proper session management
+    
+    Call this when:
+    - User clicks "End Call" button
+    - User navigates away from video page
+    - Session timeout occurs
+    """
+    import requests
+    
+    tavus_api_key = os.getenv("TAVUS_API_KEY")
+    
+    if not tavus_api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="Tavus AI is not configured."
+        )
+    
+    try:
+        headers = {
+            "x-api-key": tavus_api_key
+        }
+        
+        end_url = f"https://tavusapi.com/v2/conversations/{request.conversation_id}/end"
+        
+        response = requests.post(end_url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return {
+                "success": True,
+                "message": "Conversation ended successfully",
+                "conversation_id": request.conversation_id
+            }
+        else:
+            error_detail = response.json() if response.content else {"error": "Unknown error"}
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"Failed to end conversation: {error_detail}"
+            )
+    
+    except requests.exceptions.Timeout:
+        raise HTTPException(
+            status_code=504,
+            detail="Request timed out"
+        )
+    
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Failed to connect to Tavus API: {str(e)}"
+        )
+    
+    except HTTPException:
+        raise
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to end conversation: {str(e)}"
+        )

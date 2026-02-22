@@ -141,11 +141,13 @@ demoPoc/
 - Sentence generation (OpenAI GPT-3.5)
 - Speech-to-text transcription (OpenAI Whisper)
 - Pronunciation accuracy scoring
+- AI avatar video conversations (Tavus AI + Daily.co)
 
 **Endpoints:**
 - `POST /ai/generate-sentence` - Generate practice sentence
 - `POST /ai/submit-audio` - Upload audio file for transcription and analysis
 - `POST /ai/chat` - Chat with AI
+- `POST /ai/create-avatar-conversation` - Create real-time video conversation with AI avatar
 - `GET /ai/history` - Get practice history
 
 ## Docker Commands
@@ -179,6 +181,78 @@ docker-compose up --build -d
 ```bash
 docker-compose down -v
 docker-compose up -d
+```
+
+## Features
+
+### 1. Speaking Practice
+- Generate sentences in 8+ languages
+- Record your pronunciation
+- Get AI-powered accuracy feedback
+- Track practice history
+
+### 2. AI Chat
+- Text-based conversation with AI tutor
+- Get language learning tips
+- Ask questions about grammar and vocabulary
+
+### 3. Talk to Luna (AI Avatar)
+- Real-time video conversation with Luna, your AI English tutor
+- Full-screen face-to-face practice
+- AI can see and hear you in real-time
+- Natural conversation with instant feedback
+- Powered by Tavus AI + Daily.co WebRTC streaming
+
+**Setup:**
+1. Sign up at [https://tavus.io](https://tavus.io)
+2. Create a persona in Tavus Dashboard (or use existing)
+3. Get your API key, Persona ID, and Replica ID
+4. Add to `.env`:
+   ```
+   TAVUS_API_KEY=your_api_key
+   TAVUS_PERSONA_ID=your_persona_id
+   TAVUS_REPLICA_ID=your_replica_id
+   ```
+5. Rebuild: `docker-compose up --build -d`
+
+**Usage:**
+- Click "Talk to Luna" tab in Dashboard
+- Click "Start Video Call with Luna"
+- Allow camera/microphone permissions
+- Start practicing English!
+
+**Note:** Feature is optional. Other features work without Tavus configuration.
+
+## API Keys Required
+
+### OpenAI (Required for core features)
+- Sentence generation (GPT-3.5)
+- Speech transcription (Whisper)
+- Accuracy evaluation
+- Get from: https://platform.openai.com/api-keys
+
+### Tavus AI (Optional - for Luna avatar feature)
+- Real-time video conversations with AI avatar
+- WebRTC streaming via Daily.co
+- Get from: https://tavus.io (Developer Portal)
+- Requires: API Key, Persona ID, Replica ID
+- Leave empty if not using avatar feature
+
+## Environment Variables
+
+Create a `.env` file in the root directory:
+
+```bash
+# JWT Secret (Required)
+JWT_SECRET_KEY=your-secret-key-change-in-production
+
+# OpenAI API Key (Required)
+OPENAI_API_KEY=your-openai-api-key
+
+# Tavus AI (Optional - for Luna avatar)
+TAVUS_API_KEY=your-tavus-api-key
+TAVUS_PERSONA_ID=your-persona-id
+TAVUS_REPLICA_ID=your-replica-id
 ```
 
 

@@ -34,3 +34,15 @@ class PracticeSessionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class CreateAvatarConversationRequest(BaseModel):
+    language: str  # e.g., "Spanish", "French"
+
+class CreateAvatarConversationResponse(BaseModel):
+    conversation_id: str
+    conversation_url: str
+    status: str
+    message: str
+
+class EndAvatarConversationRequest(BaseModel):
+    conversation_id: str

@@ -84,6 +84,9 @@ services:
       - DATABASE_URL=postgresql://ai_user:ai_pass@ai-db:5432/ai_db
       - AUTH_SERVICE_URL=http://auth-service:8001
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TAVUS_API_KEY=${TAVUS_API_KEY}
+      - TAVUS_PERSONA_ID=${TAVUS_PERSONA_ID}
+      - TAVUS_REPLICA_ID=${TAVUS_REPLICA_ID}
     depends_on:
       ai-db:
         condition: service_healthy
